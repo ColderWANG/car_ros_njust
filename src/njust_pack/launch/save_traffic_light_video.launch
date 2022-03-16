@@ -1,0 +1,8 @@
+<launch>
+
+
+    <node name="save_traffic_light_video" type="traffic_light_video.py" pkg="njust_pack" output="screen"/>
+
+
+   
+</launch>

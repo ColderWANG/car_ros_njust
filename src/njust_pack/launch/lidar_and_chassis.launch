@@ -1,0 +1,15 @@
+<launch>
+
+    <param name="use_sim_time" value="false"/>
+
+    <node pkg="njust_pack" type="odom_publisher.py" name="odom_publisher"/>
+    
+    <node pkg="tf" type="static_transform_publisher" name="rslidar_tf_broadcaster" args="0.533 0.083 0.3 0 0 0 base_footprint rslidar 100" />
+    <!--                                                                      args= x       y   z yaw pitch roll-->
+    
+    <!-- start lidar -->
+    <include file="$(find njust_pack)/launch/lidar16.launch" />
+  
+    <!-- wheeltec robot-->
+    <include file="$(find turn_on_wheeltec_robot)/launch/turn_on_wheeltec_robot.launch" />
+</launch>

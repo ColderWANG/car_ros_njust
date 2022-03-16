@@ -1,0 +1,8 @@
+<launch>
+
+
+    <node name="mission_control_node" type="start_race.py" pkg="njust_pack" output="screen"/>
+
+
+   
+</launch>
