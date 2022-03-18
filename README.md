@@ -10,41 +10,41 @@
    安装opengl<br/>
    sudo apt-get install build-essential libgl1-mesa-dev libglu1-mesa-dev<br/>
    sudo apt-get install freeglut3-dev<br/>
-   pcl前置
-   sudo apt-get install git build-essential linux-libc-dev
-   sudo apt-get install cmake cmake-gui
-   sudo apt-get install libusb-1.0-0-dev libusb-dev libudev-dev
-   sudo apt-get install mpi-default-dev openmpi-bin openmpi-common
-   sudo apt-get install libflann1.9 libflann-dev
-   sudo apt-get install libqhull* libgtest-dev  
-   sudo apt-get install mono-complete
-   sudo apt-get install libopenni-dev   
-   sudo apt-get install libopenni2-dev
-   包前置
-   sudo apt-get install ros-noetic-ackermann-*
-   sudo apt-get install ros-noetic-serial
+   pcl前置<br/>
+   sudo apt-get install git build-essential linux-libc-dev<br/>
+   sudo apt-get install cmake cmake-gui<br/>
+   sudo apt-get install libusb-1.0-0-dev libusb-dev libudev-dev<br/>
+   sudo apt-get install mpi-default-dev openmpi-bin openmpi-common<br/>
+   sudo apt-get install libflann1.9 libflann-dev<br/>
+   sudo apt-get install libqhull* libgtest-dev<br/>
+   sudo apt-get install mono-complete<br/>
+   sudo apt-get install libopenni-dev<br/>
+   sudo apt-get install libopenni2-dev<br/>
+   包前置<br/>
+   sudo apt-get install ros-noetic-ackermann-*<br/>
+   sudo apt-get install ros-noetic-serial<br/>
 3. eigen-3.3.4
-   >cd eigen-3.3.4
-   mkdir build && cd build
-   cmake ..
-   sudo make install
+   >cd eigen-3.3.4<br/>
+   mkdir build && cd build<br/>
+   cmake ..<br/>
+   sudo make install<br/>
 4. vtk-8.2.0
-   >以VTK库示例，未做特殊说明均按照如下方式编译安装,默认安装位置在/usr/local
-   cd VTK-8.2.0
-   mkdir build && cd build
-   cmake ..
-   make -j8
-   sudo make install
+   >以VTK库示例，未做特殊说明均按照如下方式编译安装,默认安装位置在/usr/local<br/>
+   cd VTK-8.2.0<br/>
+   mkdir build && cd build<br/>
+   cmake ..<br/>
+   make -j8<br/>
+   sudo make install<br/>
 5. pcl-pcl-1.9.1
    > make 用 -j1 ,否则容易报错
 6. 新建ros工作空间编译perception_pcl 1.7.3版本
-   >mkdir -p pcl_ws/src
-   cd pcl_ws/src/
-   catkin_init_workspace
-   别用 git clone ，否则下载的是最新版,去 github 下载 1.7.3 的zip，移动 pcl_ros,pcl_conversions 到工作空间下编译
-   su
-   source /opt/ros/noetic/setup.bash
-   catkin_make install --cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic （这里改成自己系统版本） 
+   >mkdir -p pcl_ws/src<br/>
+   cd pcl_ws/src/<br/>
+   catkin_init_workspace<br/>
+   别用 git clone ，否则下载的是最新版,去 github 下载 1.7.3 的zip，移动 pcl_ros,pcl_conversions 到工作空间下编译<br/>
+   su<br/>
+   source /opt/ros/noetic/setup.bash<br/>
+   catkin_make install --cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic （这里改成自己系统版本） <br/>
 
 
 7. gtsam
