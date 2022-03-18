@@ -5,11 +5,11 @@
 安装顺序,先用 fishros 安装ros系统
 1. boost-1_71 (ubuntu 20自带) 以及lego官方git的指定依赖包
 2. 安装前置包
-   >安装x11
-   sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev
-   安装opengl
-   sudo apt-get install build-essential libgl1-mesa-dev libglu1-mesa-dev
-   sudo apt-get install freeglut3-dev
+   >安装x11<br/>
+   sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev<br/>
+   安装opengl<br/>
+   sudo apt-get install build-essential libgl1-mesa-dev libglu1-mesa-dev<br/>
+   sudo apt-get install freeglut3-dev<br/>
    pcl前置
    sudo apt-get install git build-essential linux-libc-dev
    sudo apt-get install cmake cmake-gui
