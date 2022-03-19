@@ -23,6 +23,8 @@
    包前置<br/>
    sudo apt-get install ros-noetic-ackermann-*<br/>
    sudo apt-get install ros-noetic-serial<br/>
+   标定包前置<br/>
+   sudo apt-get install libgtk2.0-dev pkg-config<br/>
 3. eigen-3.3.4
    >cd eigen-3.3.4<br/>
    mkdir build && cd build<br/>
@@ -54,3 +56,8 @@
 
 ### 编译安装
 进入文件夹catkin_make -j1
+
+
+## rslidar_sdk注意
+1. 子模块 rs_driver 需单独下载或git submodule update
+2. 需要改配置文件conf.yaml
