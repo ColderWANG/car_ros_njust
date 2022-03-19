@@ -61,3 +61,7 @@
 ## rslidar_sdk注意
 1. 子模块 rs_driver 需单独下载或git submodule update
 2. 需要改配置文件conf.yaml
+
+## 相机标定以及雷达相机联合标定
+1. 相机 usb_cam 一定要从 github 上下载自己编译！！！！，ros-noetic-usb-cam 无法进行后续的标定。
+2. sudo apt-get install ros-noetic-camera-calibration 进行标定。
