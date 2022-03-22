@@ -3,3 +3,4 @@
 /dependency
 /data
 !/data/get_image.py
+/src/usb_cam/usb_cam
