@@ -2,7 +2,7 @@
     
     <!--- Sim Time -->
     <param name="/use_sim_time" value="true" />
-    <node pkg="image_transport" type="republish" name="image_republish" args="compressed in:=/usb_cam/image_raw raw out:=/usb_cam/image_raw" />
+    <!-- <node pkg="image_transport" type="republish" name="image_republish" args="compressed in:=/usb_cam/image_raw raw out:=/usb_cam/image_raw" /> -->
     <!-- Run a passthrough filter to clean NaNs -->
     <node pkg="nodelet" type="nodelet" name="passthrough" args="load pcl/PassThrough pcl_manager" output="screen">
     <!-- <remap from="~input" to="/rslidar_points" />
@@ -25,7 +25,7 @@
     </node>
  
     <!--- Run Rviz-->
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find lego_loam)/launch/test2.rviz" />
+    <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find lego_loam)/launch/test2.rviz" /> -->
  
     <!--- TF -->
     <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0 0 0 1.570795   0        1.570795 /map    /camera_init 10" />
@@ -34,8 +34,8 @@
     <!--- LeGO-LOAM -->    
     <node pkg="lego_loam" type="imageProjection"    name="imageProjection"    output="screen"/>
     <node pkg="lego_loam" type="featureAssociation" name="featureAssociation" output="screen"/>
-    <node pkg="lego_loam" type="mapOptmization"     name="mapOptmization"     output="screen"/>
+    <!-- <node pkg="lego_loam" type="mapOptmization"     name="mapOptmization"     output="screen"/> -->
     <node pkg="lego_loam" type="transformFusion"    name="transformFusion"    output="screen"/>
-    <!-- <node pkg="lego_loam" type="visualization"      name="visualization"      output="screen"/> -->
-    <node pkg="lego_loam" type="fast_scnn.py"       name="fast_scnn"          output="screen"/>
+    <node pkg="lego_loam" type="visualization"      name="visualization"      output="screen"/>
+    <!-- <node pkg="lego_loam" type="fast_scnn.py"       name="fast_scnn"          output="screen"/> -->
 </launch>

@@ -65,3 +65,6 @@
 ## 相机标定以及雷达相机联合标定
 1. 相机 usb_cam 一定要从 github 上下载自己编译！！！！，ros-noetic-usb-cam 无法进行后续的标定。
 2. sudo apt-get install ros-noetic-camera-calibration 进行标定。
+
+按照 https://github.com/Aaron20127/Camera-lidar-joint-calibration 的方法进行标定。
+运行 pcl_ros 命令行要用 ros-noetic-pcl_ros 的

@@ -387,7 +387,7 @@ public:
                 size_t index = j + i*Horizon_SCAN;
                 float PointZ = fullCloud->points[index].z;
                 //for test
-                if(j > 675 && j < 1125){
+                if(j > 675 && j < 1125 && rangeMat.at<float>(i,j) < 3){
                     Cloudfortest->push_back(fullCloud->points[index]);
                 }
                 //
@@ -562,7 +562,7 @@ public:
             pcl::toROSMsg(*Cloudfortest,laserCloudTemp);
             laserCloudTemp.header.stamp = cloudHeader.stamp;
             laserCloudTemp.header.frame_id = "base_link";
-            pubScanCloud.publish(laserCloudTemp);
+            pubCloudfortest.publish(laserCloudTemp);
         }
     }
 };

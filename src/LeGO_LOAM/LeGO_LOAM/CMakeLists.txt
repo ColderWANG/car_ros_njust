@@ -25,7 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(GTSAM REQUIRED QUIET)
-find_package(PCL REQUIRED QUIET)
+find_package(PCL 1.9 REQUIRED QUIET)
 find_package(OpenCV REQUIRED QUIET)
 
 catkin_package(
