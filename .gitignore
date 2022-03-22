@@ -2,3 +2,4 @@
 /build
 /dependency
 /data
+!/data/get_image.py
