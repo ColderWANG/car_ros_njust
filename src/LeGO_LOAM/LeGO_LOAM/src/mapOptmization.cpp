@@ -83,7 +83,7 @@ public:
 //计算转化后的平面上点云坐标
 void Laserscan::transformPointCloud(void){
     Point2D pointTemp;
-    cout << "Program in transformPointCloud , points num :" << points.size() << endl;
+    //cout << "Program in transformPointCloud , points num :" << points.size() << endl;
     for(size_t i = 0; i < points.size(); i++){
         float x1 = cos(pose.yaw) * points[i].x - sin(pose.yaw) * points[i].y;
         float y1 = sin(pose.yaw) * points[i].x + cos(pose.yaw) * points[i].y;
@@ -91,7 +91,7 @@ void Laserscan::transformPointCloud(void){
         pointTemp.y = y1 + pose.y;
         transformpoints.push_back(pointTemp);
     }
-    cout << "After transformPointCloud , transformpoints num :" << transformpoints.size() << endl;
+    //cout << "After transformPointCloud , transformpoints num :" << transformpoints.size() << endl;
 }
 
 class SlamMap{
@@ -105,7 +105,7 @@ public:
     }
     void Init(){
         occumap->info.map_load_time = ros::Time(0);
-        occumap->info.resolution = 0.2;            //地图分辨率为 0.1 m/pixel
+        occumap->info.resolution = 0.2;            //地图分辨率为 0.2 m/pixel
         occumap->info.width = 500;
         occumap->info.height = 500;                 //500X500 像素
         occumap->info.origin.position.x = 0;       //原点的坐标,取负数为原点在当前坐标系下的坐标
@@ -977,7 +977,7 @@ public:
             PointType start = Mymap.getMapCoord(scan->pose.x, scan->pose.y);
             pcl::PointCloud<Point2D> point_cloud = scan->GetTransformPointCloud();
             //
-            cout << "point_cloud num:" << point_cloud.points.size() << endl;
+            //cout << "point_cloud num:" << point_cloud.points.size() << endl;
             //
             scan->cleartransformPointCloud();
             for(Point2D& point : point_cloud){

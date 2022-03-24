@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import threading
+from time import time
 import numpy as np
 import cv2
 from openvino.inference_engine import IECore
@@ -11,9 +12,12 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from threading import Thread, Lock
 
+import os
+print("fthdhtdh"+os.getcwd())
+print(os.path.abspath(__file__))
 # (.xml and .bin files) or (.onnx file)
-model_xml = "/home/w/car_ros/src/LeGO-LOAM/LeGO-LOAM/scripts/model.xml"
-model_bin = "/home/w/car_ros/src/LeGO-LOAM/LeGO-LOAM/scripts/model.bin"
+model_xml = "/home/w/car_ros/src/LeGO_LOAM/LeGO_LOAM/scripts/model.xml"
+model_bin = "/home/w/car_ros/src/LeGO_LOAM/LeGO_LOAM/scripts/model.bin"
 device = 'CPU' # 设备
 # ---------------------------Step 1. Initialize inference engine core--------------------------------------------------
 ie = IECore()
@@ -40,7 +44,7 @@ std = (0.229, 0.224, 0.225)
 
 def fast_scnn(image):
     # timestart = cv2.getTickCount()
-
+    print('running in fast_scnn')
     # image = cv2.imread(image)
     image = image.copy()[:, :, ::-1]
     # image = img.copy()[:, :, ::-1]  # cvtColor
@@ -67,7 +71,7 @@ class Image_Processer:
         self.mutex = Lock()
         self.ImgSub = rospy.Subscriber("/usb_cam/image_raw", Image, self.callback)
         self.bridge = CvBridge()
-        self.ImgPub = rospy.Publisher("/image_aftSeg", Image, queue_size = 1)
+        self.ImgPub = rospy.Publisher("/usb_cam/image_aftSeg", Image, queue_size = 1)
         self.newimg = False
     def callback(self,data):
         try:
@@ -93,6 +97,7 @@ if __name__ == '__main__':
     rospy.loginfo('\033[1;32m---->\033[0m visualizatoin Started.')
     IP = Image_Processer()
     thread = Thread(target = IP.Sub_thread , args = "Sub_Img_thread")
+    rospy.loginfo('start fast-scnn Sub_thread')
     while not rospy.is_shutdown():
         IP.run()
         

@@ -2,7 +2,7 @@
     
     <!--- Sim Time -->
     <param name="/use_sim_time" value="true" />
-    <!-- <node pkg="image_transport" type="republish" name="image_republish" args="compressed in:=/usb_cam/image_raw raw out:=/usb_cam/image_raw" /> -->
+    <node pkg="image_transport" type="republish" name="image_republish" args="compressed in:=/usb_cam/image_raw raw out:=/usb_cam/image_raw" />
     <!-- Run a passthrough filter to clean NaNs -->
     <node pkg="nodelet" type="nodelet" name="passthrough" args="load pcl/PassThrough pcl_manager" output="screen">
     <!-- <remap from="~input" to="/rslidar_points" />
@@ -29,7 +29,9 @@
  
     <!--- TF -->
     <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0 0 0 1.570795   0        1.570795 /map    /camera_init 10" />
-    <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera" args="0 0 0 -1.570795 -1.570795 0        /camera /base_link   10" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera" args="0 0 0 -1.570795 -1.570795 0        /camera /base_footprint   10" />
+
+    <!-- <node pkg="tf" type="static_transform_publisher" name="rslidar_tf_broadcaster" args="0.533 0.083 0.3 0 0 0 /base_footprint /rslidar 100" /> -->
  
     <!--- LeGO-LOAM -->    
     <node pkg="lego_loam" type="imageProjection"    name="imageProjection"    output="screen"/>
