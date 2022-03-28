@@ -51,6 +51,7 @@ private:
     ros::Publisher pubSegmentedCloudInfo;
     ros::Publisher pubOutlierCloud;
     ros::Publisher pubScanCloud;
+    //ros::Publisher pubLaserScan;
 
     pcl::PointCloud<PointType>::Ptr laserCloudIn;
     pcl::PointCloud<PointXYZIR>::Ptr laserCloudInRing;
@@ -64,6 +65,7 @@ private:
     pcl::PointCloud<PointType>::Ptr segmentedCloudPure;
     pcl::PointCloud<PointType>::Ptr outlierCloud;
     pcl::PointCloud<PointType>::Ptr scanCloud;
+    //sensor_msgs::LaserScan::Ptr scan;
 
     PointType nanPoint; // fill in fullCloud at each iteration
 
@@ -95,6 +97,7 @@ public:
         pubFullCloud = nh.advertise<sensor_msgs::PointCloud2> ("/full_cloud_projected", 1);
         pubFullInfoCloud = nh.advertise<sensor_msgs::PointCloud2> ("/full_cloud_info", 1);
         pubCloudfortest = nh.advertise<sensor_msgs::PointCloud2> ("/Cloudfortest", 1);
+        //pubLaserScan = nh.advertise<sensor_msgs::LaserScan>("/scan",1);
 
         pubGroundCloud = nh.advertise<sensor_msgs::PointCloud2> ("/ground_cloud", 1);
         pubSegmentedCloud = nh.advertise<sensor_msgs::PointCloud2> ("/segmented_cloud", 1);
@@ -121,6 +124,7 @@ public:
         fullInfoCloud.reset(new pcl::PointCloud<PointType>());
         scanCloud.reset(new pcl::PointCloud<PointType>());
         Cloudfortest.reset(new pcl::PointCloud<PointType>());
+        //scan.reset(new sensor_msgs::LaserScan());
 
         groundCloud.reset(new pcl::PointCloud<PointType>());
         segmentedCloud.reset(new pcl::PointCloud<PointType>());
@@ -129,6 +133,8 @@ public:
 
         fullCloud->points.resize(N_SCAN*Horizon_SCAN);
         fullInfoCloud->points.resize(N_SCAN*Horizon_SCAN);
+        //scan->ranges.resize(Horizon_SCAN);
+        //scan->intensities.resize(Horizon_SCAN);
 
         segMsg.startRingIndex.assign(N_SCAN, 0);
         segMsg.endRingIndex.assign(N_SCAN, 0);
@@ -159,11 +165,14 @@ public:
         scanCloud->clear();
         Cloudfortest->clear();
 
+        
         rangeMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_32F, cv::Scalar::all(FLT_MAX));
         groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
         labelMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_32S, cv::Scalar::all(0));
         labelCount = 1;
 
+        //std::fill(scan->ranges.begin(),scan->ranges.end(),500);
+        //std::fill(scan->ranges.begin(),scan->ranges.end(),FLT_MAX);
         std::fill(fullCloud->points.begin(), fullCloud->points.end(), nanPoint);
         std::fill(fullInfoCloud->points.begin(), fullInfoCloud->points.end(), nanPoint);
     }
@@ -382,6 +391,7 @@ public:
         for(size_t j = 0; j < Horizon_SCAN; j++){
             if(j < 125 || j > 1675)continue;
             float min_range = 500;
+            //float min_intensity = FLT_MAX;
             size_t min_id = 0;
             for(size_t i = 0; i < N_SCAN; i++){
                 size_t index = j + i*Horizon_SCAN;
@@ -404,12 +414,18 @@ public:
                     if(PointZ > -0.4 && PointZ < 0.5 && rangeMat.at<float>(i,j) < 40){
                         if(rangeMat.at<float>(i,j) < min_range){
                             min_range = rangeMat.at<float>(i,j);
+                            //min_intensity = fullCloud->points[index].intensity;
                             min_id = index;
                         }
                     }
                 }
             }
-            if(min_range < 500)scanCloud->push_back(fullCloud->points[min_id]);
+            if(min_range < 500){
+                scanCloud->push_back(fullCloud->points[min_id]);
+                //把当前点作为LaserScan的一个点
+                //scan->ranges[j] = min_range;
+                //scan->intensities[j] = min_intensity;
+            }
         }
     }
 
@@ -558,6 +574,19 @@ public:
             pubScanCloud.publish(laserCloudTemp);
             //cout << "image Porjection  publish scanCloud num :" << scanCloud->points.size() << endl;
         }
+        //发布 LaserScan
+        // if(pubLaserScan.getNumSubscribers() != 0){
+        //     scan->header.stamp = cloudHeader.stamp;
+        //     scan->header.frame_id = "rslidar";
+        //     scan->angle_max = 3.1415926;
+        //     scan->angle_min = -3.1415926;
+        //     scan->angle_increment = 0.003;
+        //     scan->scan_time = 0.1;
+        //     scan->range_min = 0.2;
+        //     scan->range_max = 120;
+        //     pubLaserScan.publish(*scan);
+        //     //cout << "image Porjection  publish scanCloud num :" << scanCloud->points.size() << endl;
+        // }
         if(pubCloudfortest.getNumSubscribers() != 0){
             pcl::toROSMsg(*Cloudfortest,laserCloudTemp);
             laserCloudTemp.header.stamp = cloudHeader.stamp;

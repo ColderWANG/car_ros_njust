@@ -217,7 +217,6 @@ private:
     ros::Publisher pubIcpKeyFrames;
     ros::Publisher pubRecentKeyFrames;
     ros::Publisher pubRegisteredCloud;
-
     ros::Publisher pubOccupancyMap;
 
     ros::Subscriber subLaserCloudCornerLast;
@@ -225,7 +224,8 @@ private:
     ros::Subscriber subOutlierCloudLast;
     ros::Subscriber subLaserOdometry;
     ros::Subscriber subImu;
-    ros::Subscriber subScanCloud;
+    ros::Subscriber subScanCloud; 
+    
 
     nav_msgs::Odometry odomAftMapped;
     tf::StampedTransform aftMappedTrans;
@@ -270,7 +270,9 @@ private:
     pcl::PointCloud<PointType>::Ptr scanCloud; //接受消息获得3d格式的点云
     pcl::PointCloud<Point2D>::Ptr scanCloud2D; //转化为2d格式的点云
     vector<shared_ptr<Laserscan>> scans;//所有关键scan
+
     SlamMap Mymap;
+
 
     pcl::PointCloud<PointType>::Ptr laserCloudOri;
     pcl::PointCloud<PointType>::Ptr coeffSel;
@@ -399,12 +401,12 @@ public:
         subImu = nh.subscribe<sensor_msgs::Imu> (imuTopic, 50, &mapOptimization::imuHandler, this);
         subScanCloud = nh.subscribe<sensor_msgs::PointCloud2>("/scan_cloud",2,&mapOptimization::scanCloudHandler,this);
 
+
         pubHistoryKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/history_cloud", 2);
         pubIcpKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/corrected_cloud", 2);
         pubRecentKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/recent_cloud", 2);
         pubRegisteredCloud = nh.advertise<sensor_msgs::PointCloud2>("/registered_cloud", 2);
         pubOccupancyMap = nh.advertise<nav_msgs::OccupancyGrid>("/occupancyMap",2);
-        
 
         downSizeFilterCorner.setLeafSize(0.2, 0.2, 0.2);
         downSizeFilterSurf.setLeafSize(0.4, 0.4, 0.4);
@@ -1750,7 +1752,7 @@ public:
         laserCloudCornerFromMap->clear();
         laserCloudSurfFromMap->clear();  
         laserCloudCornerFromMapDS->clear();
-        laserCloudSurfFromMapDS->clear();   
+        laserCloudSurfFromMapDS->clear(); 
     }
 
     void run(){

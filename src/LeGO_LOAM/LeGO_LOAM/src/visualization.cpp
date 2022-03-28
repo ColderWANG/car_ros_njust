@@ -93,7 +93,7 @@ public:
             static int times = 0;
             newImageraw = false;
             newLaserCloudCornerLast = false;
-            cout << "runing" << times++ << endl;
+            // cout << "runing" << times++ << endl;
             PorjectPointCloud();
             pubImage();
             clearCloud();

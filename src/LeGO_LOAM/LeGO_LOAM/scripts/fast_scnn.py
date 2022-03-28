@@ -12,9 +12,6 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from threading import Thread, Lock
 
-import os
-print("fthdhtdh"+os.getcwd())
-print(os.path.abspath(__file__))
 # (.xml and .bin files) or (.onnx file)
 model_xml = "/home/w/car_ros/src/LeGO_LOAM/LeGO_LOAM/scripts/model.xml"
 model_bin = "/home/w/car_ros/src/LeGO_LOAM/LeGO_LOAM/scripts/model.bin"
@@ -44,7 +41,7 @@ std = (0.229, 0.224, 0.225)
 
 def fast_scnn(image):
     # timestart = cv2.getTickCount()
-    print('running in fast_scnn')
+    # print('running in fast_scnn')
     # image = cv2.imread(image)
     image = image.copy()[:, :, ::-1]
     # image = img.copy()[:, :, ::-1]  # cvtColor
