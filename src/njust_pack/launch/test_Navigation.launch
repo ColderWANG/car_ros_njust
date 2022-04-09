@@ -8,7 +8,9 @@
 
 
     <!-- <node name="map_server" pkg="map_server" type="map_server" output="screen" args="/home/w/njust_driver/map/race_map.yaml"/> -->
-    <include file="$(find lego_loam)/launch/run2.launch"
+    <include file="$(find rslidar_sdk)/launch/start.launch" />
+    <include file="$(find usb_cam)/launch/usb_cam-test.launch" />
+    <include file="$(find lego_loam)/launch/run2.launch" />
     <include file="$(find turn_on_wheeltec_robot)/launch/turn_on_wheeltec_robot.launch" />
     
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
@@ -18,7 +20,7 @@
       <rosparam file="$(find njust_pack)/cfg/move_base_cfg/global_costmap_params.yaml" command="load" />
       <rosparam file="$(find njust_pack)/cfg/move_base_cfg/teb_local_planner_params.yaml" command="load" />
       
-      
+
       <!--param name="base_global_planner" value="navfn/NavfnROS" /-->
       
       <param name="base_global_planner" value="global_planner/GlobalPlanner" />
@@ -30,7 +32,7 @@
       <param name="controller_patience" value="15.0" />
       <remap from="map" to="/map"/>
     </node>
-
+    <node name="send_mark" pkg="turn_on_wheeltec_robot" type="send_mark.py" />
 
 
 

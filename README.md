@@ -69,3 +69,7 @@
 按照 https://github.com/Aaron20127/Camera-lidar-joint-calibration 的方法进行标定。
 在 /data 文件夹下有图片提取脚本 get_image.py 以及点云提取命令
 运行 pcl_ros 命令行要用 ros-noetic-pcl_ros 的，用完通过 apt-get remove 删除或自己在 cmake 中指定编译版本为1.9
+
+## 安装导航包 ros-noetic-navigation 以及 阿克曼轮路径规划器 teb_local_planner
+teb_local_planner git地址为 https://github.com/rst-tu-dortmund/teb_local_planner/tree/noetic-devel 
+

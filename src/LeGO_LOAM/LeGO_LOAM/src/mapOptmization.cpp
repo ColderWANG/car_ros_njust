@@ -327,7 +327,7 @@ private:
     bool newLaserOdometry;
     bool newLaserCloudOutlierLast;
     bool newScanCloud;
-
+    bool isFirstPubOccumap = true;
 
     float transformLast[6];
     float transformSum[6];
@@ -401,12 +401,11 @@ public:
         subImu = nh.subscribe<sensor_msgs::Imu> (imuTopic, 50, &mapOptimization::imuHandler, this);
         subScanCloud = nh.subscribe<sensor_msgs::PointCloud2>("/scan_cloud",2,&mapOptimization::scanCloudHandler,this);
 
-
         pubHistoryKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/history_cloud", 2);
         pubIcpKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/corrected_cloud", 2);
         pubRecentKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/recent_cloud", 2);
         pubRegisteredCloud = nh.advertise<sensor_msgs::PointCloud2>("/registered_cloud", 2);
-        pubOccupancyMap = nh.advertise<nav_msgs::OccupancyGrid>("/occupancyMap",2);
+        pubOccupancyMap = nh.advertise<nav_msgs::OccupancyGrid>("/map",2);
 
         downSizeFilterCorner.setLeafSize(0.2, 0.2, 0.2);
         downSizeFilterSurf.setLeafSize(0.4, 0.4, 0.4);
@@ -975,8 +974,7 @@ public:
         mtx.lock();
         //for(const shared_ptr<Laserscan>& scan : scans){
         if(scans.size() != 0){
-            shared_ptr<Laserscan>& scan = *(scans.end()-1);
-            PointType start = Mymap.getMapCoord(scan->pose.x, scan->pose.y);
+            shared_ptr<Laserscan>& scan = *(scans.end()-1); 
             pcl::PointCloud<Point2D> point_cloud = scan->GetTransformPointCloud();
             //
             //cout << "point_cloud num:" << point_cloud.points.size() << endl;
@@ -984,6 +982,7 @@ public:
             scan->cleartransformPointCloud();
             for(Point2D& point : point_cloud){
                 PointType end = Mymap.getMapCoord(point.x, point.y);
+                PointType start = Mymap.getMapCoord(scan->pose.x, scan->pose.y); 
                 pcl::PointCloud<Point2D> points_line = bresenham(start.x,start.y,end.x,end.y);
                 int n = points_line.size();
                 if(n == 0)continue;
@@ -1001,7 +1000,7 @@ public:
                 }
                 //if(Mymap.occumap->data[indx] == -1)
                 //    Mymap.occumap->data[indx] = 100;
-            }        
+            }
         }
         scans.clear();
         mtx.unlock();

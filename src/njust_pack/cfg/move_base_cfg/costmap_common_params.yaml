@@ -16,10 +16,10 @@ obstacle_layer:
  track_unknown_space: false
  combination_method: 1
 
-#  observation_sources: laser_scan_sensor
-#  laser_scan_sensor: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
- observation_sources: bump_sensor
- bump_sensor: {data_type: PointCloud2, topic: scan_cloud, marking: true, clearing: true}
+ #observation_sources: laser_scan_sensor
+ #laser_scan_sensor: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
+ observation_sources: point_cloud_sensor
+ point_cloud_sensor: {sensor_frame: base_footprint , data_type: PointCloud2, topic: /scan_cloud, marking: true, clearing: true}
 
 
 inflation_layer:
@@ -29,4 +29,4 @@ inflation_layer:
 
 static_layer:
   enabled:              true
-  map_topic:            "/map"
+  map_topic:            "map"
