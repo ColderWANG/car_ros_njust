@@ -263,6 +263,9 @@ public:
             range = sqrt(thisPoint.x * thisPoint.x + thisPoint.y * thisPoint.y + thisPoint.z * thisPoint.z);
             if (range < sensorMinimumRange)
                 continue;
+            //过远的点云舍弃
+            if(range > 60)
+                continue;
             
             rangeMat.at<float>(rowIdn, columnIdn) = range;
 
