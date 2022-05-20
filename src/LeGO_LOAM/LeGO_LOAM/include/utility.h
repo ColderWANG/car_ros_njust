@@ -37,6 +37,7 @@
  
 #include <vector>
 #include <cmath>
+#include <unordered_set>
 #include <algorithm>
 #include <queue>
 #include <deque>
@@ -144,6 +145,12 @@ extern const float historyKeyframeFitnessScore = 0.3; // the smaller the better 
 
 extern const float globalMapVisualizationSearchRadius = 500.0; // key frames with in n meters will be visualized
 
+
+/********************************* 改进--增加的常量************************************************/
+extern const int Refresh_boundrary = 50;
+
+
+/*********************************************************************************/
 
 struct smoothness_t{ 
     float value;

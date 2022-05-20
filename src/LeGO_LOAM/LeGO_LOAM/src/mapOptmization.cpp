@@ -94,9 +94,11 @@ void Laserscan::transformPointCloud(void){
     //cout << "After transformPointCloud , transformpoints num :" << transformpoints.size() << endl;
 }
 
-class SlamMap{
+class SlamMap{  
 public:
     nav_msgs::OccupancyGrid::Ptr occumap;
+    queue<PointType> PointCloudQue_refresh;            //点云队列
+    unordered_set<int> Index_refresh;                  //索引去重
     SlamMap(){
         occumap.reset(new nav_msgs::OccupancyGrid);
     }
@@ -969,37 +971,68 @@ public:
         return points;
     }
     //添加发布 ros 格式的占据概率图
+    /*----------------------------------------------------------------------------------------------*/
+    /********************* 改进--双层边界更新法 ******************************************************/
+    /*----------------------------------------------------------------------------------------------*/
     void publishOccupancyMap(){
+        int indx;        //索引
+        int probval;     //占据值
+        //优化队列,一个元素为[点位置，点的占据概率值]
         //更新概率地图
         mtx.lock();
-        //for(const shared_ptr<Laserscan>& scan : scans){
+        //帧处理
         if(scans.size() != 0){
             shared_ptr<Laserscan>& scan = *(scans.end()-1); 
-            pcl::PointCloud<Point2D> point_cloud = scan->GetTransformPointCloud();
-            //
-            //cout << "point_cloud num:" << point_cloud.points.size() << endl;
-            //
+            pcl::PointCloud<Point2D> point_cloud = scan->GetTransformPointCloud(); //一帧点云scan
             scan->cleartransformPointCloud();
+            
+            //对每个点通过划线法更新
             for(Point2D& point : point_cloud){
-                PointType end = Mymap.getMapCoord(point.x, point.y);
-                PointType start = Mymap.getMapCoord(scan->pose.x, scan->pose.y); 
-                pcl::PointCloud<Point2D> points_line = bresenham(start.x,start.y,end.x,end.y);
+                PointType end = Mymap.getMapCoord(point.x, point.y);               //点位姿
+                PointType start = Mymap.getMapCoord(scan->pose.x, scan->pose.y);   //机器人位姿
+                int rg = sqrt(pow(abs(end.x - start.x),2) + pow(abs(end.y - start.y),2));
+                pcl::PointCloud<Point2D> points_line = bresenham(start.x,start.y,end.x,end.y); //Bresenham划线法
                 int n = points_line.size();
                 if(n == 0)continue;
-                for(int j = 0; j < n - 1; j++){
-                    int indx = Mymap.getMapIndex(points_line[j].x,points_line[j].y);
-                    if(Mymap.occumap->data[indx] - 3 >= 3){
-                        Mymap.occumap->data[indx] -= 3;
+                //刷新优化队列
+                while(!Mymap.PointCloudQue_refresh.empty()){
+                    PointType tmp = Mymap.PointCloudQue_refresh.front();
+                    indx = Mymap.getMapIndex(tmp.x,tmp.y);
+                    probval =  Mymap.occumap->data[indx];
+                    int r = sqrt(pow(abs(tmp.x - start.x),2) + pow(abs(tmp.y - start.y),2));
+                    if(r < Refresh_boundrary)break;
+                    if(probval != 100)
+                        Mymap.occumap->data[indx] = 0;
+                    Mymap.PointCloudQue_refresh.pop();
+                    Mymap.Index_refresh.erase(indx);
+                }
+                //刷新
+                if(rg < Refresh_boundrary){
+                    //刷新区
+                    for(int j = 0; j < n - 1; j++){
+                        indx = Mymap.getMapIndex(points_line[j].x,points_line[j].y);
+                        Mymap.occumap->data[indx] -= 2;
+                        if(Mymap.occumap->data[indx] < 0)
+                            Mymap.occumap->data[indx] = 0;
                     }
-                    //if(Mymap.occumap->data[indx] == -1)
-                    //    Mymap.occumap->data[indx] = 0;
-                }
-                int indx = Mymap.getMapIndex(points_line[n - 1].x,points_line[n - 1].y);
-                if(Mymap.occumap->data[indx] + 5 <= 95){
+                    indx = Mymap.getMapIndex(points_line[n - 1].x,points_line[n - 1].y);
                     Mymap.occumap->data[indx] += 5;
+                    if(Mymap.occumap->data[indx] > 100)
+                        Mymap.occumap->data[indx] = 100;
+                    if(Mymap.Index_refresh.find(indx) == Mymap.Index_refresh.end()){ //哈希set去重
+                        Mymap.PointCloudQue_refresh.emplace(end);
+                        Mymap.Index_refresh.insert(indx);
+                    }
+                }else {
+                    //褪色区
+                    for(int j = 0; j < n; j++){
+                        indx = Mymap.getMapIndex(points_line[j].x,points_line[j].y);
+                        if(Mymap.occumap->data[indx] != 100)
+                            Mymap.occumap->data[indx] -= 5;
+                        if(Mymap.occumap->data[indx] < 0)
+                            Mymap.occumap->data[indx] = 0;
+                    }
                 }
-                //if(Mymap.occumap->data[indx] == -1)
-                //    Mymap.occumap->data[indx] = 100;
             }
         }
         scans.clear();
@@ -1007,6 +1040,9 @@ public:
         Mymap.occumap->header.frame_id = "map";
         pubOccupancyMap.publish(*Mymap.occumap);
     }
+    /*----------------------------------------------------------------------------------------------*/
+    /************************************************************************************************/
+    /*----------------------------------------------------------------------------------------------*/
     void publishGlobalMap(){
 
         if (pubLaserCloudSurround.getNumSubscribers() == 0)
@@ -1816,5 +1852,6 @@ int main(int argc, char** argv)
 
     loopthread.join();
     visualizeMapThread.join();
+    visualizeOccupancyMapThread.join();
     return 0;
 }

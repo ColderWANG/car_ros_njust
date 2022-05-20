@@ -1,0 +1,59 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "gdbbblaunch",
+            "type": "shell",
+            "command": "roslaunch",
+            "args": [
+                "lego_loam",
+                "gdbbb.launch"
+            ],
+            "group": {                       
+                "kind": "build",
+                "isDefault": true
+            },
+        },
+        {
+            "label": "catkin build",
+            "type": "shell",
+            "command": "catkin_make",
+            "group": {                               //ctrl+shift+B 显示的分组
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {       //关于输出显示的设置，这里设置为总是输出到集成的终端，可通过"panel": "new"设置每次都启动新的终端
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"  //错误分析器，可以分析到输出的信息中有哪些错误并显示
+        },
+        {
+            "label": "catkin clean",
+            "type": "shell",
+            "command": "catkin",
+            "args": [
+                "clean",
+                "-y"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "ccb",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "catkin clean",
+                "catkin build"
+            ],
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        }
+    ]
+}
