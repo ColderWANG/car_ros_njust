@@ -277,8 +277,9 @@ public:
             fullInfoCloud->points[index].intensity = range; // the corresponding range of a point is saved as "intensity"
         }
     }
-
-
+/*----------------------------------------------------------------------------------------------------------------------------*/
+/***************************** 改进--地面点直线拟合 ************************************************************************/
+/*----------------------------------------------------------------------------------------------------------------------------*/
     void groundRemoval(){
         size_t lowerInd, upperInd;
         float diffX, diffY, diffZ, angle;
@@ -307,14 +308,107 @@ public:
 
                 if (abs(angle - sensorMountAngle) <= 10){
                     groundMat.at<int8_t>(i,j) = 1;
-                    groundMat.at<int8_t>(i+1,j) = 1;
+                    //groundMat.at<int8_t>(i+1,j) = 1;
                 }
             }
         }
+        //分块选取点，直线拟合  bid74为左边
+        pair<double,double> kb0 = {100,100};
+        vector<pair<double,double>> Block_kb(Block_N,kb0);
+        vector<pair<int,double>> Sorted_Block_b;
+        vector<PointType> RePoint;
+        vector<PointType> Line;
+        vector<PointType> first_scan_RP(Block_N);
+        //测试用
+        // ofstream ofs;
+        // ofs.open("/home/w/car_ros/data/line.txt",ios::out);
+        // int line_n = 0;
+        //
+        for(size_t bid = 0; bid < Block_N; ++bid){
+            RePoint.clear();
+            for(int i = 0; i < groundScanInd; ++i){
+                Line.clear();
+                for(int id = 0; id < 6; ++id){
+                    int j = 6*bid+id;
+                    if(groundMat.at<int8_t>(i,j) == 1)
+                        Line.emplace_back(fullCloud->points[j + i*Horizon_SCAN]);
+                }
+                if(Line.empty())continue;       //一个 Line 没有地面点，则跳过
+                sort(Line.begin(),Line.end(),[&](PointType p1, PointType p2){return p1.z < p2.z;});
+                int Line_size = Line.size();
+                //PointType pt = Line_size <= 2 ? Line[0]:Line[Line_size/2 - 1];
+                RePoint.emplace_back(Line[Line_size/2]);
+                if(i == 0)first_scan_RP[bid] = Line[Line_size/2];
+            }
+            if(RePoint.size() < 2)continue;    //一个 Block 至少要有两个点进行最小二乘法直线拟合
+            /*********** 最小二乘直线拟合 ******************/
+            int RePoint_size = RePoint.size();
+            double x_sum = 0;
+            double y_sum = 0;
+            double xx_sum = 0;
+            double xy_sum = 0;
+            for(int Pid = 0; Pid < RePoint_size; ++Pid){
+                double px = sqrt(pow(RePoint[Pid].x,2) + pow(RePoint[Pid].y,2));
+                double py = RePoint[Pid].z;
+                x_sum += px;
+                y_sum += py;
+                xx_sum += px * px;
+                xy_sum += px * py;
+            }
+            double k = (RePoint_size*xy_sum - x_sum * y_sum) / (RePoint_size*xx_sum - x_sum * x_sum);
+            double b = (-x_sum * xy_sum + xx_sum*y_sum) / (RePoint_size*xx_sum - x_sum * x_sum);
+            //打印直线拟合数据
+            // line_n++;
+            // ofs << "bid: " << bid << ",RPn=" << RePoint.size() << endl;
+            // for(int id = 0; id < RePoint.size(); ++id){
+            //     double r = sqrt(pow(RePoint[id].x,2) + pow(RePoint[id].y,2));
+            //     ofs << "RP" << id << " r=" << r << ",z=" << RePoint[id].z << endl;
+            // }
+            // ofs << "k=" << k << ",b=" << b << endl;
+            //小于30°认为直线有效
+            if(k < 0.577){
+                Block_kb[bid] = make_pair(k,b);
+                Sorted_Block_b.emplace_back(make_pair(bid,b));
+            }
+            /**********************************************/
+        }
+        // ofs << "line_n : " << line_n << endl;
+        // ofs << "angle less than 30° line_n : " << Sorted_Block_b.size();
+        // ofs.close();
+        sort(Sorted_Block_b.begin(),Sorted_Block_b.end(),[&](pair<int,double> p1, pair<int,double> p2){return p1.second < p2.second;});
+        int mid_b_bid = Sorted_Block_b[Sorted_Block_b.size()/2].first;       //b的中位数的 id
+        double mid_b = Block_kb[mid_b_bid].second;                           //b的中位数
+        //cout << "line_num :" << Sorted_Block_b.size() << endl;
+        //遍历筛选同级地面点
+        for(size_t bid = 0; bid < Block_N; ++bid){
+            //double r = sqrt(pow(first_scan_RP[bid].x,2) + pow(first_scan_RP[bid].y,2));
+            //double h = Block_kb[bid].first * r + Block_kb[bid].second;
+            //
+            //cout << "bid : " << bid << ",h = " << h << ",k = " << Block_kb[bid].first << ",b = " << Block_kb[bid].second << endl;
+            //
+            for(int i = 0; i < groundScanInd; ++i){
+                for(int id = 0; id < 6; ++id){
+                    int j = 6*bid + id;
+                    if(groundMat.at<int8_t>(i,j) == 1){
+                        size_t index = j + i*Horizon_SCAN;
+                        float PointZ = fullCloud->points[index].z;
+                        //cout << "bid : " << bid << ",h = " << h << ",k = " << Block_kb[bid].first << ",b = " << Block_kb[bid].second << endl;
+                        if(Block_kb[bid].second - mid_b >= 0.07 && i != 0){
+                            groundMat.at<int8_t>(i,j) = 2;
+                            groundMat.at<int8_t>(i+1,j) = 2;
+                        }else if(PointZ - Block_kb[bid].second >= 0.07){  //过滤非一级地面
+                            groundMat.at<int8_t>(i,j) = 2;
+                            groundMat.at<int8_t>(i+1,j) = 2;
+                        }
+                    }
+                }
+            }
+        }
+
         // extract ground cloud (groundMat == 1)
         // mark entry that doesn't need to label (ground and invalid point) for segmentation
         // note that ground remove is from 0~N_SCAN-1, need rangeMat for mark label matrix for the 16th scan
-        for (size_t i = 0; i < N_SCAN; ++i){
+        for(size_t i = 0; i < N_SCAN; ++i){
             for (size_t j = 0; j < Horizon_SCAN; ++j){
                 if (groundMat.at<int8_t>(i,j) == 1 || rangeMat.at<float>(i,j) == FLT_MAX){
                     labelMat.at<int>(i,j) = -1;
@@ -330,7 +424,9 @@ public:
             }
         }
     }
-
+/*----------------------------------------------------------------------------------------------------------------------------*/
+/******************************************************************************************************************************/
+/*----------------------------------------------------------------------------------------------------------------------------*/
     void cloudSegmentation(){
         // segmentation process
         for (size_t i = 0; i < N_SCAN; ++i)
@@ -400,11 +496,11 @@ public:
                 size_t index = j + i*Horizon_SCAN;
                 float PointZ = fullCloud->points[index].z;
                 //for test
-                if(j > 675 && j < 1125 && rangeMat.at<float>(i,j) < 3){
-                    Cloudfortest->push_back(fullCloud->points[index]);
-                }
+                // if(j > 675 && j < 1125 && rangeMat.at<float>(i,j) < 3){
+                //     Cloudfortest->push_back(fullCloud->points[index]);
+                // }
                 //
-                if(labelMat.at<int>(i,j) > 0 || groundMat.at<int8_t>(i,j) == 1){
+                if(labelMat.at<int>(i,j) > 0 || groundMat.at<int8_t>(i,j) == 1 || groundMat.at<int8_t>(i,j) == 2){
                     // outliers that will not be used for optimization (always continue)
                     if (labelMat.at<int>(i,j) == 999999){
                         continue;
@@ -414,7 +510,7 @@ public:
                         if (j%5!=0 && j>5 && j<Horizon_SCAN-5)
                             continue;
                     }
-                    if(PointZ > -0.4 && PointZ < 0.5 && rangeMat.at<float>(i,j) < 40){
+                    if(PointZ > -0.4 && PointZ < 0.5 && rangeMat.at<float>(i,j) < 8){
                         if(rangeMat.at<float>(i,j) < min_range){
                             min_range = rangeMat.at<float>(i,j);
                             //min_intensity = fullCloud->points[index].intensity;

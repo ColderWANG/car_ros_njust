@@ -38,6 +38,7 @@
 #include <vector>
 #include <cmath>
 #include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 #include <queue>
 #include <deque>
@@ -75,7 +76,6 @@ extern const int Horizon_SCAN = 1800;
 extern const float ang_res_x = 0.2;
 extern const float ang_res_y = 2.0;
 extern const float ang_bottom = 15.0+0.1;
-extern const int groundScanInd = 7;
 
 // HDL-32E
 // extern const int N_SCAN = 32;
@@ -147,9 +147,9 @@ extern const float globalMapVisualizationSearchRadius = 500.0; // key frames wit
 
 
 /********************************* 改进--增加的常量************************************************/
-extern const int Refresh_boundrary = 50;
-
-
+extern const int Refresh_boundrary = 10;   //40--8m 50--10m  0.2m/pixel
+extern const size_t Block_N = 300;
+extern const int groundScanInd = 6;
 /*********************************************************************************/
 
 struct smoothness_t{ 

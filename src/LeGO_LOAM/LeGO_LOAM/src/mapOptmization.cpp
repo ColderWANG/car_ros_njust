@@ -977,7 +977,6 @@ public:
     void publishOccupancyMap(){
         int indx;        //索引
         int probval;     //占据值
-        //优化队列,一个元素为[点位置，点的占据概率值]
         //更新概率地图
         mtx.lock();
         //帧处理
@@ -1011,7 +1010,7 @@ public:
                     //刷新区
                     for(int j = 0; j < n - 1; j++){
                         indx = Mymap.getMapIndex(points_line[j].x,points_line[j].y);
-                        Mymap.occumap->data[indx] -= 2;
+                        Mymap.occumap->data[indx] -= 1;
                         if(Mymap.occumap->data[indx] < 0)
                             Mymap.occumap->data[indx] = 0;
                     }
